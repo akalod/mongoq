@@ -1,5 +1,5 @@
 {
-    "name": "akalod/mongo-lingo",
+    "name": "akalod/mongoq",
     "description": "MongoDB PHP Query Builder",
     "authors": [
         {
