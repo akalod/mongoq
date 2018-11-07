@@ -7,7 +7,7 @@ composer require akalod/mongo-lingo
 ```
 
 # using examples with alias
-```
+```php
 Use akalod/mongoLingo as DB;
 
 // static using example
