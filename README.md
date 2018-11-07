@@ -1,9 +1,9 @@
-# mongoLingo
+# mongoq
 MongoDB Query Builder
 
 # install
 ```php
-composer require akalod/mongo-lingo
+composer require akalod/mongoq
 ```
 
 # using examples with alias
