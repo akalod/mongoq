@@ -1,5 +1,5 @@
 # mongoq
-MongoDB Query Builder
+MongoDB Query Builder (PHP)
 
 # install
 ```php
