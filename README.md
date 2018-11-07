@@ -12,7 +12,7 @@ Use akalod/mongoLingo as DB;
 
 // static using example
 DB::init("mongodb://localhost","db_name");
-DB::$ORM->collection('tasks')->get();
+DB::$Q->collection('tasks')->get();
 
 // construct example of multi line connections
 $x = DB::init("mongodb://localhost","a_db");
