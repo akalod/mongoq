@@ -28,7 +28,7 @@ $x->collection('a_table')
 // you can use multiple where condition 
 ... ->where('status',1)->where('owner_id',2) 
 //or 
-.. ->where(['status'=>1,'owner_id'=>2)
+.. ->where(['status'=>1,'owner_id'=>2])
 
 
 ```
