@@ -13,14 +13,14 @@ namespace akalod;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Client;
 
-class mongoLingo
+class mongoq
 {
     private $client = null;
     public static $DSN = 'mongodb://demo.digitalpanzehir.com:27017';
     public static $db_name = 'arge';
 
 
-    public static $ORM;
+    public static $Q;
     private $stack;
     private $joins = [];
     private $wheres = \stdClass::class;
@@ -134,16 +134,16 @@ class mongoLingo
      */
     public static function init($dsn = null, $db = null)
     {
-        self::$ORM = new self();
-        self::$ORM->wheres = new \stdClass();
+        self::$Q = new self();
+        self::$Q->wheres = new \stdClass();
         if($dsn)
             self::$DSN = $dsn;
         $client = new Client(self::$DSN);
         if ($db)
             self::$db_name = $db;
-        self::$ORM->client = $client->selectDatabase(self::$db_name);
+        self::$Q->client = $client->selectDatabase(self::$db_name);
 
-        return self::$ORM;
+        return self::$Q;
     }
 
     public function distinct($column_name)
