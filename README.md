@@ -8,7 +8,7 @@ composer require akalod/mongoq
 
 # using examples with alias
 ```php
-Use akalod/mongoLingo as DB;
+Use akalod/mongoq as DB;
 
 // static using example
 DB::init("mongodb://localhost","db_name");
