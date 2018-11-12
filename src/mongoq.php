@@ -276,4 +276,37 @@ class mongoq
         }
     }
 
+    public function updateOrCreate($data)
+    {
+        return $this->update($data, true, true);
+    }
+
+    public function updateAll($data, $force = true)
+    {
+        return $this->update($data, $force, false, true);
+    }
+
+    public function update(array $data, $force = false, $createIfDoesNotExist = false, $effectiveMultiDocument = false)
+    {
+        if ($this->stack) {
+
+            $this->options['upsert'] = $createIfDoesNotExist;
+            $this->options['multi'] = $effectiveMultiDocument;
+
+            if ($force) {
+                return $this->stack->update($this->wheres, $data, $this->options);
+            } else {
+                $effectiveData = $this->get();
+                foreach ($effectiveData as $item) {
+                    foreach ($data as $k => $v) {
+                        $item[$k] = $v;
+                    }
+                    return $this->stack->replaceOne($this->wheres, $item);
+                }
+                return true;
+            }
+        }
+
+    }
+
 }
