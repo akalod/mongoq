@@ -12,6 +12,7 @@ namespace akalod;
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\Client;
+use MongoDB\BSON\Regex;
 
 class mongoq
 {
@@ -24,6 +25,7 @@ class mongoq
     private $stack;
     private $joins = [];
     private $wheres = \stdClass::class;
+    private $options = [];
 
     /**
      * @param $id
@@ -32,6 +34,12 @@ class mongoq
     public static function ObjectID($id)
     {
         return new ObjectId($id);
+    }
+
+    public function limit($limit = 1)
+    {
+        $this->options['limit'] = $limit;
+        return $this;
     }
 
     /**
@@ -61,7 +69,8 @@ class mongoq
                 throw new \Exception('You can not run this command with have been joined table');
             }
         }
-        return $this->stack->$method($this->wheres);
+
+        return $this->stack->$method($this->wheres, $this->options);
     }
 
     /**
@@ -75,12 +84,14 @@ class mongoq
         } catch (\Exception $e) {
             throw $e;
         }
+
         return $this->workStructure($r);
     }
 
     /**
-     *  objectId has been changed by string for easy access
+     * objectId has been changed by string for easy access
      * @param $data
+     * @return mixed
      */
     private function setStructure(&$data)
     {
@@ -88,6 +99,7 @@ class mongoq
             $y = (array)$data['_id'];
             $data['_id'] = $y['oid'];
         }
+        return $data;
     }
 
     /**
@@ -104,7 +116,7 @@ class mongoq
             };
 
         } else {
-            $this->setStructure($data);
+            return $this->setStructure($data);
         }
 
         return $temp;
@@ -117,26 +129,31 @@ class mongoq
     public function get()
     {
 
+        $data = [];
         try {
             $r = $this->prepare('find');
         } catch (\Exception $e) {
             throw $e;
         }
 
-        return $this->workStructure($r);
+        foreach ($r as $i) {
+            $data[] = $this->workStructure($i);
+        }
+
+        return $data;
 
     }
 
     /**
      * @param null $dsn
      * @param null $db
-     * @return mongoLingo
+     * @return mongoq
      */
     public static function init($dsn = null, $db = null)
     {
         self::$Q = new self();
         self::$Q->wheres = new \stdClass();
-        if($dsn)
+        if ($dsn)
             self::$DSN = $dsn;
         $client = new Client(self::$DSN);
         if ($db)
@@ -171,20 +188,56 @@ class mongoq
     }
 
     /**
+     * case-insensitive flag is i
      * @param $data -> can be array like as ["_id"=>self::ObjectID("5bdc01ef45bfc30ea8004d92")]
      * @param null $value
+     * @param bool $like -> that is ` where like '%key%' ` syntax on SQL
      * @return $this
      */
-    public function where($data, $value = null)
+    public function where($data, $value = null, $like = false)
     {
         if (is_array($data)) {
             foreach ($data as $k => $v) {
                 $this->wheres->$k = $v;
             }
         } else {
-            $this->wheres->$data = $value;
+            $this->wheres->$data = is_numeric($value) ? intval($value) : new Regex($like ? $value : "^$value\$", "i");
         }
         return $this;
+    }
+
+    /**
+     * @param $key
+     * @param $val
+     * @return mongoq
+     */
+    public function whereLike($key, $val)
+    {
+        return $this->where($key, $val, true);
+    }
+
+    /**
+     * @param $key
+     * @return mongoq
+     */
+    public function whereNotNull($key)
+    {
+        return $this->where([$key => ['$exists' => true, '$ne' => null]]);
+    }
+
+    /**
+     * limited to unset or null variable key index
+     * @param $key
+     * @return mongoq
+     */
+    public function whereIsNull($key)
+    {
+        return $this->where(
+            ['$or' => [
+                [$key => ['$exists' => false]],
+                [$key => null]
+            ]]
+        );
     }
 
     /**
@@ -213,6 +266,9 @@ class mongoq
         }
     }
 
+    /**
+     * @param $data
+     */
     public function insert($data)
     {
         if ($this->stack) {
