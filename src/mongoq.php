@@ -89,6 +89,28 @@ class mongoq
     }
 
     /**
+     * @param $table
+     * @return mixed
+     */
+    public function create($table)
+    {
+        return $this->client->createCollection($table);
+    }
+
+    /**
+     * Drop your collection !!!
+     * @param null $table
+     * @return mixed
+     */
+    public function drop($table = null)
+    {
+        if ($table)
+            return $this->collection($table)->drop();
+
+        return $this->stack->drop();
+    }
+
+    /**
      * objectId has been changed by string for easy access
      * @param $data
      * @return mixed
@@ -123,8 +145,7 @@ class mongoq
     }
 
     /**
-     * @return array
-     * @throws \Exception
+     * @return array|\Exception
      */
     public function get()
     {
@@ -133,7 +154,7 @@ class mongoq
         try {
             $r = $this->prepare('find');
         } catch (\Exception $e) {
-            throw $e;
+            return $e;
         }
 
         foreach ($r as $i) {
@@ -276,16 +297,32 @@ class mongoq
         }
     }
 
+    /**
+     * @param $data
+     * @return bool
+     */
     public function updateOrCreate($data)
     {
         return $this->update($data, true, true);
     }
 
+    /**
+     * @param $data
+     * @param bool $force
+     * @return bool
+     */
     public function updateAll($data, $force = true)
     {
         return $this->update($data, $force, false, true);
     }
 
+    /**
+     * @param array $data
+     * @param bool $force -> this option replaces your data with whatever you send. If you select "false", Doesn't overwrite except for your previously assigned keys
+     * @param bool $createIfDoesNotExist
+     * @param bool $effectiveMultiDocument
+     * @return bool
+     */
     public function update(array $data, $force = false, $createIfDoesNotExist = false, $effectiveMultiDocument = false)
     {
         if ($this->stack) {
@@ -298,10 +335,11 @@ class mongoq
             } else {
                 $effectiveData = $this->get();
                 foreach ($effectiveData as $item) {
+                    $item->_id = self::ObjectID($item->_id);
                     foreach ($data as $k => $v) {
                         $item[$k] = $v;
                     }
-                    return $this->stack->replaceOne($this->wheres, $item);
+                    $this->stack->replaceOne(['_id' => self::ObjectID($item->_id)], $item);
                 }
                 return true;
             }
