@@ -86,7 +86,7 @@ $r->collection('task')->whereIsNull('owner_id')->update(['owner_id'=>1,'email'=>
 $r->create('tableName');
 
 //drop collection
-$r->collection('tableName)->drop();
+$r->collection('tableName')->drop();
 //or
 $r->drop('tableName');
 
