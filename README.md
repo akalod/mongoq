@@ -93,5 +93,12 @@ $r->drop('tableName');
 //distinct
 $r->collection('collecionName')->distinct('keyName');
 
-
+//order by ..
+$r->collection('tasks')
+    ->orderBy('name') //default DESC
+    ->get()
+// or
+$r->collection('tasks')
+    ->orderBy('name',DB::ASC)
+    ->get()
 ```
