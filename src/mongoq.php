@@ -20,6 +20,9 @@ class mongoq
     public static $DSN = 'mongodb://demo.digitalpanzehir.com:27017';
     public static $db_name = 'arge';
 
+    const DESC = -1;
+    const ASC = 1;
+
 
     public static $Q;
     private $stack;
@@ -314,6 +317,18 @@ class mongoq
     public function updateAll($data, $force = true)
     {
         return $this->update($data, $force, false, true);
+    }
+
+    /**
+     * @param $key
+     * @param int $sort
+     * @return $this
+     */
+    public function orderBy($key, $sort = self::DESC)
+    {
+        $this->options['sort'] = [$key => $sort];
+        return $this;
+
     }
 
     /**
