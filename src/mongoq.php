@@ -56,6 +56,13 @@ class mongoq
         return $this;
     }
 
+    private function cleanRules()
+    {
+        $this->wheres = new \stdClass();
+        $this->options = [];
+        $this->joins = [];
+    }
+
     /**
      * @param string $method
      * @return mixed
@@ -67,13 +74,17 @@ class mongoq
             if ($method == 'findOne' || $method == 'find') {
                 $r = $this->joins;
                 $r[] = ['$match' => $this->wheres];
-                return $this->stack->aggregate($r);
+                $r = $this->stack->aggregate($r);
+                $this->cleanRules();
+                return $r;
             } else {
                 throw new \Exception('You can not run this command with have been joined table');
             }
         }
 
-        return $this->stack->$method($this->wheres, $this->options);
+        $r = $this->stack->$method($this->wheres, $this->options);
+        $this->cleanRules();
+        return $r;
     }
 
     /**
