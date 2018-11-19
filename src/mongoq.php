@@ -82,13 +82,18 @@ class mongoq
      */
     public function first()
     {
+        $this->limit(1);
         try {
-            $r = $this->prepare();
+            $r = $this->prepare('find');
         } catch (\Exception $e) {
-            throw $e;
+            return $e;
         }
 
-        return $this->workStructure($r);
+        foreach ($r as $i) {
+            $r = $this->workStructure($i);
+        }
+
+        return $r;
     }
 
     /**
