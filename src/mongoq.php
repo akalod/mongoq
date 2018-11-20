@@ -90,6 +90,11 @@ class mongoq
                 throw new \Exception('You can not run this command with have been joined table');
             }
         }
+        if (isset($this->options['project'])) {
+            $this->options['projection'] = $this->options['project'];
+            unset($this->options['project']);
+        }
+
         $method == 'toJSON' ?
             $r = json_encode([$this->wheres, $this->options]) :
             $r = $this->stack->$method($this->wheres, $this->options);
@@ -203,6 +208,7 @@ class mongoq
         $this->setReturnColumns($keys);
         return $this->prepare('toJSON');
     }
+
     /**
      * @param null $keys // select return keys
      * @return array|\Exception
