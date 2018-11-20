@@ -201,7 +201,7 @@ class mongoq
     public function toJSON($keys = null)
     {
         $this->setReturnColumns($keys);
-        return $this->prepare('find');
+        return $this->prepare('toJSON');
     }
     /**
      * @param null $keys // select return keys
