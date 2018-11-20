@@ -70,7 +70,7 @@ class mongoq
      */
     private function prepare($method = 'findOne')
     {
-        if ($this->joins) {
+        if ($this->joins || in_array('project', $this->options)) {
             if ($method == 'findOne' || $method == 'find') {
                 $r = $this->joins;
                 $r[] = ['$match' => $this->wheres];
@@ -93,11 +93,13 @@ class mongoq
     }
 
     /**
-     * @return mixed
-     * @throws \Exception
+     * @param null $keys
+     * @return array|\Exception|mixed
      */
-    public function first()
+    public function first($keys = null)
     {
+        $this->setReturnColumns($keys);
+
         $this->limit(1);
         try {
             $r = $this->prepare('find');
@@ -168,11 +170,27 @@ class mongoq
         return $temp;
     }
 
+    private function setReturnColumns($keys = null)
+    {
+
+        if (isset($keys) && is_array($keys)) {
+            foreach ($keys as $k => &$v) {
+                if (!is_array($v)) {
+                    $v = [$v => 1];
+                }
+            }
+            $this->options['project'] = $keys;
+        }
+
+    }
+
     /**
+     * @param null $keys // select return keys
      * @return array|\Exception
      */
-    public function get()
+    public function get($keys = null)
     {
+        $this->setReturnColumns($keys);
 
         $data = [];
         try {
