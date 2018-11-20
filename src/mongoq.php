@@ -71,7 +71,8 @@ class mongoq
     private function prepare($method = 'findOne')
     {
         if ($this->joins || in_array('project', $this->options)) {
-            if ($method == 'findOne' || $method == 'find') {
+
+            if ($method == 'findOne' || $method == 'find' || $method = 'toJSON') {
                 $r = $this->joins;
                 $r[] = ['$match' => $this->wheres];
 
@@ -79,15 +80,20 @@ class mongoq
                     $r[] = ['$' . $k => $v];
                 }
 
-                $r = $this->stack->aggregate($r);
+                $method == 'toJSON' ?
+                    $r = json_encode($r) :
+                    $r = $this->stack->aggregate($r);
+
                 $this->cleanRules();
                 return $r;
             } else {
                 throw new \Exception('You can not run this command with have been joined table');
             }
         }
+        $method == 'toJSON' ?
+            $r = json_encode([$this->wheres, $this->options]) :
+            $r = $this->stack->$method($this->wheres, $this->options);
 
-        $r = $this->stack->$method($this->wheres, $this->options);
         $this->cleanRules();
         return $r;
     }
@@ -174,16 +180,29 @@ class mongoq
     {
 
         if (isset($keys) && is_array($keys)) {
+            $project = new \stdClass();
             foreach ($keys as $k => &$v) {
                 if (!is_array($v)) {
-                    $v = [$v => 1];
+                    $project->$v = 1;
+                } else {
+                    $project->$v = $k;
                 }
             }
-            $this->options['project'] = $keys;
+            $this->options['project'] = $project;
         }
 
     }
 
+    /**
+     * @param null $keys
+     * @return mixed
+     * @throws \Exception
+     */
+    public function toJSON($keys = null)
+    {
+        $this->setReturnColumns($keys);
+        return $this->prepare('find');
+    }
     /**
      * @param null $keys // select return keys
      * @return array|\Exception
