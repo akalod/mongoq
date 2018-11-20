@@ -74,6 +74,11 @@ class mongoq
             if ($method == 'findOne' || $method == 'find') {
                 $r = $this->joins;
                 $r[] = ['$match' => $this->wheres];
+
+                foreach ($this->options as $k => $v) {
+                    $r[] = ['$' . $k => $v];
+                }
+
                 $r = $this->stack->aggregate($r);
                 $this->cleanRules();
                 return $r;
@@ -263,6 +268,11 @@ class mongoq
     public function whereNotNull($key)
     {
         return $this->where([$key => ['$exists' => true, '$ne' => null]]);
+    }
+
+    public function unwind($key)
+    {
+        $this->options['unwind'] = '$' . $key;
     }
 
     /**
