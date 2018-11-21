@@ -56,11 +56,25 @@ class mongoq
         return $this;
     }
 
-    private function cleanRules()
+    /**
+     * pipline'ı resetleme static kullanımlarda fetch edilen datadan sonra ayarların sıfırlanması gerekiyor
+     */
+    private function resetPipeLine()
     {
         $this->wheres = new \stdClass();
         $this->options = [];
         $this->joins = [];
+    }
+
+    /**
+     * OneToOne ilişkiler için unwind işlemi
+     * @param $key
+     * @return $this
+     */
+    public function oneToOne($key)
+    {
+        $this->joins[] = ['$unwind' => ["path" => '$' . $key, "preserveNullAndEmptyArrays" => true]];
+        return $this;
     }
 
     /**
@@ -84,7 +98,7 @@ class mongoq
                     $r = json_encode($r) :
                     $r = $this->stack->aggregate($r);
 
-                $this->cleanRules();
+                $this->resetPipeLine();
                 return $r;
             } else {
                 throw new \Exception('You can not run this command with have been joined table');
@@ -99,7 +113,7 @@ class mongoq
             $r = json_encode([$this->wheres, $this->options]) :
             $r = $this->stack->$method($this->wheres, $this->options);
 
-        $this->cleanRules();
+        $this->resetPipeLine();
         return $r;
     }
 
@@ -190,7 +204,7 @@ class mongoq
                 if (!is_array($v)) {
                     $project->$v = 1;
                 } else {
-                    $project->$v = $k;
+                    $project->$k = $v;
                 }
             }
             $this->options['project'] = $project;
@@ -428,6 +442,8 @@ class mongoq
                 return true;
             }
         }
+
+        return false;
 
     }
 
