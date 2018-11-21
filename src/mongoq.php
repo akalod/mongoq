@@ -145,8 +145,10 @@ class mongoq
             return $e;
         }
 
-        foreach ($r as $i) {
-            $r = $this->workStructure($i);
+        if ($r) {
+            foreach ($r as $i) {
+                $r = $this->workStructure($i);
+            }
         }
 
         return $r;
@@ -251,8 +253,10 @@ class mongoq
             return $e;
         }
 
-        foreach ($r as $i) {
-            $data[] = $this->workStructure($i);
+        if ($r) {
+            foreach ($r as $i) {
+                $data[] = $this->workStructure($i);
+            }
         }
 
         return $data;
