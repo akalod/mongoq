@@ -84,7 +84,8 @@ class mongoq
      */
     private function lastTypeCheck($data)
     {
-        if (get_class($data) != 'MongoDB\Model\BSONDocument') {
+
+        if (!is_array($data)) {
             return null;
         }
         return $data;
@@ -98,7 +99,6 @@ class mongoq
     private function prepare($method = 'findOne')
     {
         if ($this->joins || in_array('project', $this->options)) {
-
             if ($method == 'findOne' || $method == 'find' || $method = 'toJSON') {
                 $r = $this->joins;
                 $r[] = ['$match' => $this->wheres];
@@ -112,7 +112,7 @@ class mongoq
                     $r = $this->stack->aggregate($r);
 
                 $this->resetPipeLine();
-                return $this->lastTypeCheck($r);
+                return $this->lastTypeCheck($r->toArray());
             } else {
                 throw new \Exception('You can not run this command with have been joined table');
             }
@@ -127,7 +127,7 @@ class mongoq
             $r = $this->stack->$method($this->wheres, $this->options);
 
         $this->resetPipeLine();
-        return $this->lastTypeCheck($r);
+        return $this->lastTypeCheck($r->toArray());
     }
 
     /**
@@ -253,6 +253,9 @@ class mongoq
             return $e;
         }
 
+        var_dump($r);
+
+        echo "YY";
         if ($r) {
             foreach ($r as $i) {
                 $data[] = $this->workStructure($i);
