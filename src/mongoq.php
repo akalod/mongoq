@@ -78,6 +78,19 @@ class mongoq
     }
 
     /**
+     * finaly, checking class type  for disallow to cursor problems
+     * @param $data
+     * @return null
+     */
+    private function lastTypeCheck($data)
+    {
+        if (get_class($data) != 'MongoDB\Model\BSONDocument') {
+            return null;
+        }
+        return $data;
+    }
+
+    /**
      * @param string $method
      * @return mixed
      * @throws \Exception
@@ -99,7 +112,7 @@ class mongoq
                     $r = $this->stack->aggregate($r);
 
                 $this->resetPipeLine();
-                return $r;
+                return $this->lastTypeCheck($r);
             } else {
                 throw new \Exception('You can not run this command with have been joined table');
             }
@@ -114,7 +127,7 @@ class mongoq
             $r = $this->stack->$method($this->wheres, $this->options);
 
         $this->resetPipeLine();
-        return $r;
+        return $this->lastTypeCheck($r);
     }
 
     /**
@@ -442,8 +455,6 @@ class mongoq
                 return true;
             }
         }
-
-        return false;
 
     }
 
