@@ -36,6 +36,9 @@ class mongoq
      */
     public static function ObjectID($id)
     {
+        if(is_int($id)){
+            $id = sprintf("%024d", $id);
+        }
         return new ObjectId($id);
     }
 
@@ -319,7 +322,7 @@ class mongoq
                 $this->wheres->$k = $v;
             }
         } else {
-            $this->wheres->$data = is_numeric($value) ? intval($value) : new Regex($like ? $value : "^$value\$", "i");
+            $this->wheres->$data = is_numeric($value ) || is_bool($value) ? $value : new Regex($like ? $value : "^$value\$", "i");
         }
         return $this;
     }
