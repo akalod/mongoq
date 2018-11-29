@@ -252,10 +252,6 @@ class mongoq
         } catch (\Exception $e) {
             return $e;
         }
-
-        var_dump($r);
-
-        echo "YY";
         if ($r) {
             foreach ($r as $i) {
                 $data[] = $this->workStructure($i);
