@@ -48,7 +48,7 @@ class mongoq
      */
     public static function CreateObjectID()
     {
-        return new  \MongoId();
+        return new ObjectId();
     }
 
     public function limit($limit = 1)
