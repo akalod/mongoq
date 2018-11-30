@@ -330,6 +330,8 @@ class mongoq
             foreach ($data as $k => $v) {
                 $this->wheres->$k = $v;
             }
+        } elseif (is_array($value)) {
+            $this->wheres->$data = $value;
         } else {
             $this->wheres->$data = is_numeric($value) || is_bool($value) ? $value : new Regex($like ? $value : "^$value\$", "i");
         }
