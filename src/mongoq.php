@@ -195,9 +195,19 @@ class mongoq
      */
     private function setStructure(&$data)
     {
-        if (isset($data) && $data['_id']) {
-            $y = (array)$data['_id'];
-            $data['_id'] = $y['oid'];
+        if (isset($data)) {
+
+            foreach ($data as &$d) {
+
+                if (gettype($d) == 'object' && get_class($d) == 'MongoDB\BSON\ObjectId') {
+                    $d = (string)$d;
+                }
+                if (gettype($d) == 'object' && get_class($d) == 'MongoDB\Model\BSONArray') {
+                    self::setStructure($d);
+                }
+
+            }
+
         }
         return $data;
     }
@@ -229,7 +239,12 @@ class mongoq
             $project = new \stdClass();
             foreach ($keys as $k => &$v) {
                 if (!is_array($v)) {
-                    $project->$v = 1;
+                    if ($v[0] == '!') {
+                        $v = substr($v, 1);
+                        $project->$v = 0;
+                    } else {
+                        $project->$v = 1;
+                    }
                 } else {
                     $project->$k = $v;
                 }
