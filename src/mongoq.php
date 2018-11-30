@@ -36,10 +36,19 @@ class mongoq
      */
     public static function ObjectID($id)
     {
-        if(is_int($id)){
+        if (is_int($id)) {
             $id = sprintf("%024d", $id);
         }
         return new ObjectId($id);
+    }
+
+    /**
+     * create MongoId
+     * @return \MongoId
+     */
+    public static function CreateObjectID()
+    {
+        return new  \MongoId();
     }
 
     public function limit($limit = 1)
@@ -322,7 +331,7 @@ class mongoq
                 $this->wheres->$k = $v;
             }
         } else {
-            $this->wheres->$data = is_numeric($value ) || is_bool($value) ? $value : new Regex($like ? $value : "^$value\$", "i");
+            $this->wheres->$data = is_numeric($value) || is_bool($value) ? $value : new Regex($like ? $value : "^$value\$", "i");
         }
         return $this;
     }
