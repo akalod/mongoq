@@ -43,8 +43,7 @@ class mongoq
     }
 
     /**
-     * create MongoId
-     * @return \MongoId
+     * @return ObjectId
      */
     public static function CreateObjectID()
     {
